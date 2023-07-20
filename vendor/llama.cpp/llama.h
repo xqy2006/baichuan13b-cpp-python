@@ -274,6 +274,9 @@ extern "C" {
     LLAMA_API int llama_n_ctx  (const struct llama_context * ctx);
     LLAMA_API int llama_n_embd (const struct llama_context * ctx);
 
+    LLAMA_API int llama_n_vocab_from_model(const struct llama_model * model);
+    LLAMA_API int llama_n_ctx_from_model  (const struct llama_model * model);
+    LLAMA_API int llama_n_embd_from_model (const struct llama_model * model);
     // Get the vocabulary as output parameters.
     // Returns number of results.
     LLAMA_API int llama_get_vocab(
@@ -295,6 +298,9 @@ extern "C" {
 
     // Token Id -> String. Uses the vocabulary in the provided context
     LLAMA_API const char * llama_token_to_str(const struct llama_context * ctx, llama_token token);
+    LLAMA_API const char * llama_token_to_str_with_model(
+              const struct llama_model * model,
+                           llama_token   token);
 
     // Special tokens
     LLAMA_API llama_token llama_token_bos();  // beginning-of-sentence
