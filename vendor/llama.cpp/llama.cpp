@@ -1452,11 +1452,13 @@ static bool llama_eval_internal(
             offload_func_kq(tmpq);
             ggml_set_name(tmpq, "tmpq");
 
-            struct ggml_tensor * Kcur = ggml_rope_custom_inplace(ctx0, ggml_reshape_3d(ctx0, tmpk, n_embd/n_head, n_head, N), n_past, n_rot, 0, freq_base, freq_scale, 0);
+            //struct ggml_tensor * Kcur = ggml_rope_inplace(ctx0, ggml_reshape_3d(ctx0, tmpk, n_embd/n_head, n_head, N), //n_past, n_rot, 0, 0);
+            struct ggml_tensor * Kcur  = ggml_reshape_3d(ctx0, tmpk, n_embd/n_head, n_head, N);
             offload_func_kq(Kcur);
             ggml_set_name(Kcur, "Kcur");
 
-            struct ggml_tensor * Qcur = ggml_rope_custom_inplace(ctx0, ggml_reshape_3d(ctx0, tmpq, n_embd/n_head, n_head, N), n_past, n_rot, 0, freq_base, freq_scale, 0);
+            //struct ggml_tensor * Qcur = ggml_rope_inplace(ctx0, ggml_reshape_3d(ctx0, tmpq, n_embd/n_head, n_head, N), ////////n_past, n_rot, 0, 0);
+            struct ggml_tensor * Qcur = ggml_reshape_3d(ctx0, tmpq, n_embd/n_head, n_head, N);
             offload_func_kq(Qcur);
             ggml_set_name(Qcur, "Qcur");
 
@@ -1516,9 +1518,14 @@ static bool llama_eval_internal(
             struct ggml_tensor * KQ_scaled = ggml_scale_inplace(ctx0, KQ, KQ_scale);
             offload_func_kq(KQ_scaled);
             ggml_set_name(KQ_scaled, "KQ_scaled");
+            // here add kq_scaled_alibi 
 
-            // KQ_masked = mask_past(KQ_scaled)
-            struct ggml_tensor * KQ_masked = ggml_diag_mask_inf_inplace(ctx0, KQ_scaled, n_past);
+            struct ggml_tensor * KQ_scaled_alibi =
+                ggml_alibi(ctx0, KQ_scaled, n_past, n_head, 8);
+            ggml_set_name(KQ_scaled_alibi, "KQ_scaled_alibi");
+
+            struct ggml_tensor * KQ_masked = ggml_diag_mask_inf(ctx0, KQ_scaled_alibi, n_past);
+            //struct ggml_tensor * KQ_masked = ggml_diag_mask_inf_inplace(ctx0, KQ_scaled, n_past);
             offload_func_kq(KQ_masked);
             ggml_set_name(KQ_masked, "KQ_masked");
 
