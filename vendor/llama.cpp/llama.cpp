@@ -3605,6 +3605,17 @@ int llama_tokenize(
 
     return res.size();
 }
+int llama_n_vocab_from_model(const struct llama_model * model) {
+    return model->vocab.id_to_token.size();
+}
+
+int llama_n_ctx_from_model(const struct llama_model * model) {
+    return model->hparams.n_ctx;
+}
+
+int llama_n_embd_from_model(const struct llama_model * model) {
+    return model->hparams.n_embd;
+}
 
 int llama_n_vocab(const struct llama_context * ctx) {
     return ctx->vocab.id_to_token.size();
@@ -3637,6 +3648,13 @@ float * llama_get_logits(struct llama_context * ctx) {
 
 float * llama_get_embeddings(struct llama_context * ctx) {
     return ctx->embedding.data();
+}
+const char * llama_token_to_str_with_model(const struct llama_model * model, llama_token token) {
+    if (token >= llama_n_vocab_from_model(model)) {
+        return nullptr;
+    }
+
+    return model->vocab.id_to_token[token].tok.c_str();
 }
 
 const char * llama_token_to_str(const struct llama_context * ctx, llama_token token) {
