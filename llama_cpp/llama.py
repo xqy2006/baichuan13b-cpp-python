@@ -1465,11 +1465,11 @@ class Llama:
             stop if isinstance(stop, list) else [stop] if isinstance(stop, str) else []
         )
         chat_history = "".join(
-            ("<reserved_102>" if message["role"] == "user" else "Assistant")+message["content"]
+            ("<reserved_102> " + message["content"] if message["role"] == "user" else "<reserved_103>" + message["content"]+ "</s>")
             for message in messages
         )
         PROMPT = chat_history + "<reserved_103>"
-        PROMPT_STOP = ["<reserved_103>", "<reserved_102>"]
+        PROMPT_STOP = ["<reserved_103>", "<reserved_102> "]
         completion_or_chunks = self(
             prompt=PROMPT,
             stop=PROMPT_STOP + stop,
