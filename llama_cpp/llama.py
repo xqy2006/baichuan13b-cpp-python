@@ -1465,7 +1465,7 @@ class Llama:
             stop if isinstance(stop, list) else [stop] if isinstance(stop, str) else []
         )
         chat_history = "".join(
-            f'### {"<reserved_102>" if message["role"] == "user" else "Assistant"}:{message["content"]}'
+            ("<reserved_102>" if message["role"] == "user" else "Assistant")+message["content"]
             for message in messages
         )
         PROMPT = chat_history + "<reserved_103>"
