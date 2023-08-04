@@ -833,6 +833,18 @@ class Llama:
         completion_tokens: List[int] = []
         # Add blank space to start of prompt to match OG llama tokenizer
         prompt_tokens: List[int] = self.tokenize(b" " + prompt.encode("utf-8"))
+        from transformers import AutoTokenizer
+        tokenizer = AutoTokenizer.from_pretrained("baichuan-inc/Baichuan-13B-Chat", trust_remote_code=True)
+        prompt_tokens = tokenizer.encode(prompt)
+        #print(prompt_tokens)
+        remove_tokens: List[int] = []
+        for i in range(len(prompt_tokens)-1):
+            if [prompt_tokens[i],prompt_tokens[i+1]] == [31106, 195]:
+                remove_tokens.append(i)
+        if remove_tokens != []:
+            for i in range(len(remove_tokens)):
+                prompt_tokens.pop(remove_tokens[i]-i)
+        #print(prompt_tokens)
         text: bytes = b""
         returned_tokens: int = 0
         stop = (
