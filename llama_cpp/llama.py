@@ -391,7 +391,7 @@ class Llama:
             text,
             tokens,
             llama_cpp.c_int(n_ctx),
-            llama_cpp.c_bool(add_bos),
+            False,
         )
         if n_tokens < 0:
             n_tokens = abs(n_tokens)
@@ -401,7 +401,7 @@ class Llama:
                 text,
                 tokens,
                 llama_cpp.c_int(n_tokens),
-                llama_cpp.c_bool(add_bos),
+                False,
             )
             if n_tokens < 0:
                 raise RuntimeError(
@@ -825,6 +825,7 @@ class Llama:
         model: Optional[str] = None,
         stopping_criteria: Optional[StoppingCriteriaList] = None,
         logits_processor: Optional[LogitsProcessorList] = None,
+        tokenizer: str = "tokenizer.model",
     ) -> Union[Iterator[Completion], Iterator[CompletionChunk]]:
         assert self.ctx is not None
 
@@ -832,10 +833,14 @@ class Llama:
         created: int = int(time.time())
         completion_tokens: List[int] = []
         # Add blank space to start of prompt to match OG llama tokenizer
-        prompt_tokens: List[int] = self.tokenize(b" " + prompt.encode("utf-8"))
-        from transformers import AutoTokenizer
-        tokenizer = AutoTokenizer.from_pretrained("baichuan-inc/Baichuan-13B-Chat", trust_remote_code=True)
-        prompt_tokens = tokenizer.encode(prompt)
+        prompt_tokens: List[int] = self.tokenize(prompt.encode("utf-8"))
+        import sentencepiece as spm
+        sp_model = spm.SentencePieceProcessor()
+        sp_model.Load(tokenizer)
+        #print(sp_model.encode(prompt,out_type=str))
+        #print(sp_model.piece_to_id(sp_model.encode(prompt,out_type=str)))
+        #print(prompt_tokens)
+        prompt_tokens = sp_model.piece_to_id(sp_model.encode(prompt,out_type=str))
         #print(prompt_tokens)
         remove_tokens: List[int] = []
         for i in range(len(prompt_tokens)-1):
@@ -1260,6 +1265,7 @@ class Llama:
         model: Optional[str] = None,
         stopping_criteria: Optional[StoppingCriteriaList] = None,
         logits_processor: Optional[LogitsProcessorList] = None,
+        tokenizer: str = "tokenizer.model"
     ) -> Union[Completion, Iterator[CompletionChunk]]:
         """Generate text from a prompt.
 
@@ -1304,6 +1310,7 @@ class Llama:
             model=model,
             stopping_criteria=stopping_criteria,
             logits_processor=logits_processor,
+            tokenizer=tokenizer,
         )
         if stream:
             chunks: Iterator[CompletionChunk] = completion_or_chunks
@@ -1333,6 +1340,7 @@ class Llama:
         model: Optional[str] = None,
         stopping_criteria: Optional[StoppingCriteriaList] = None,
         logits_processor: Optional[LogitsProcessorList] = None,
+        tokenizer: str = "tokenizer.model",
     ) -> Union[Completion, Iterator[CompletionChunk]]:
         """Generate text from a prompt.
 
@@ -1377,6 +1385,7 @@ class Llama:
             model=model,
             stopping_criteria=stopping_criteria,
             logits_processor=logits_processor,
+            tokenizer = tokenizer
         )
 
     def _convert_text_completion_to_chat(
@@ -1457,6 +1466,7 @@ class Llama:
         mirostat_eta: float = 0.1,
         model: Optional[str] = None,
         logits_processor: Optional[LogitsProcessorList] = None,
+        tokenizer: str = "tokenizer.model",
     ) -> Union[ChatCompletion, Iterator[ChatCompletionChunk]]:
         """Generate a chat completion from a list of messages.
 
@@ -1499,6 +1509,7 @@ class Llama:
             mirostat_eta=mirostat_eta,
             model=model,
             logits_processor=logits_processor,
+            tokenizer = tokenizer,
         )
         if stream:
             chunks: Iterator[CompletionChunk] = completion_or_chunks  # type: ignore
