@@ -836,7 +836,8 @@ class Llama:
         prompt_tokens: List[int] = self.tokenize(prompt.encode("utf-8"))
         import sentencepiece as spm
         sp_model = spm.SentencePieceProcessor()
-        sp_model.Load(tokenizer)
+        import pathlib
+        sp_model.Load(str(pathlib.Path(__file__).parent.resolve()/"tokenizer.model"))
         #print(sp_model.encode(prompt,out_type=str))
         #print(sp_model.piece_to_id(sp_model.encode(prompt,out_type=str)))
         #print(prompt_tokens)
