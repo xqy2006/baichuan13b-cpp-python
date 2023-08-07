@@ -836,6 +836,10 @@ class Llama:
         #print(eval(prompt))
         prompt_list = eval(prompt)
         result = []
+        import sentencepiece as spm
+        sp_model = spm.SentencePieceProcessor()
+        import pathlib
+        sp_model.Load(str(pathlib.Path(__file__).parent.resolve()/"tokenizer.model"))
         for item in prompt_list:
             if item == 195:
                 result+=[195]
@@ -847,7 +851,8 @@ class Llama:
             elif item == "":
                 pass
             else:
-                result+= self.tokenize(b' '+item.encode("utf-8"))
+                #result+= self.tokenize(b' '+item.encode("utf-8"))
+                result+= sp_model.piece_to_id(sp_model.encode(item,out_type=str))
         #print(result)
         prompt_tokens: List[int] = result
         #print(prompt_tokens)
