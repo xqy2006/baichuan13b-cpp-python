@@ -847,7 +847,7 @@ class Llama:
                 pass
             else:
                 result+= self.tokenize(b' '+item.encode("utf-8"))
-        print(result)
+        #print(result)
         prompt_tokens: List[int] = result
         #print(prompt_tokens)
         #import sentencepiece as spm
