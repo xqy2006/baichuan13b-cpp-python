@@ -842,7 +842,8 @@ class Llama:
             elif item == 196:
                 result+=[196]
             elif item == 2:
-                result+=[2]
+                pass
+                #result+=[2]
             elif item == "":
                 pass
             else:
