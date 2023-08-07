@@ -17,9 +17,9 @@ setup(
     package_dir={"llama_cpp": "llama_cpp", "llama_cpp.server": "llama_cpp/server"},
     packages=["llama_cpp", "llama_cpp.server"],
     package_data={"llama_cpp": ["*.model", ]},
-    install_requires=["typing-extensions>=4.5.0", "numpy>=1.20.0", "diskcache>=5.6.1"],
+    install_requires=["typing-extensions>=4.5.0", "numpy>=1.20.0", "diskcache>=5.6.1","sentencepiece"],
     extras_require={
-        "server": ["uvicorn>=0.22.0", "fastapi>=0.100.0", "pydantic-settings>=2.0.1", "sse-starlette>=1.6.1","sentencepiece"],
+        "server": ["uvicorn>=0.22.0", "fastapi>=0.100.0", "pydantic-settings>=2.0.1", "sse-starlette>=1.6.1"],
     },
     python_requires=">=3.7",
     classifiers=[
