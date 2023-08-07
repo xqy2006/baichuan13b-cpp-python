@@ -833,23 +833,39 @@ class Llama:
         created: int = int(time.time())
         completion_tokens: List[int] = []
         # Add blank space to start of prompt to match OG llama tokenizer
-        prompt_tokens: List[int] = self.tokenize(prompt.encode("utf-8"))
-        import sentencepiece as spm
-        sp_model = spm.SentencePieceProcessor()
-        import pathlib
-        sp_model.Load(str(pathlib.Path(__file__).parent.resolve()/"tokenizer.model"))
+        #print(eval(prompt))
+        prompt_list = eval(prompt)
+        result = []
+        for item in prompt_list:
+            if item == 195:
+                result+=[195]
+            elif item == 196:
+                result+=[196]
+            elif item == 2:
+                result+=[2]
+            elif item == "":
+                pass
+            else:
+                result+= self.tokenize(b' '+item.encode("utf-8"))
+        print(result)
+        prompt_tokens: List[int] = result
+        #print(prompt_tokens)
+        #import sentencepiece as spm
+        #sp_model = spm.SentencePieceProcessor()
+        #import pathlib
+        #sp_model.Load(str(pathlib.Path(__file__).parent.resolve()/"tokenizer.model"))
         #print(sp_model.encode(prompt,out_type=str))
         #print(sp_model.piece_to_id(sp_model.encode(prompt,out_type=str)))
         #print(prompt_tokens)
-        prompt_tokens = sp_model.piece_to_id(sp_model.encode(prompt,out_type=str))
+        #prompt_tokens = sp_model.piece_to_id(sp_model.encode(prompt,out_type=str))
         #print(prompt_tokens)
-        remove_tokens: List[int] = []
-        for i in range(len(prompt_tokens)-1):
-            if [prompt_tokens[i],prompt_tokens[i+1]] == [31106, 195]:
-                remove_tokens.append(i)
-        if remove_tokens != []:
-            for i in range(len(remove_tokens)):
-                prompt_tokens.pop(remove_tokens[i]-i)
+        #remove_tokens: List[int] = []
+        #for i in range(len(prompt_tokens)-1):
+        #    if [prompt_tokens[i],prompt_tokens[i+1]] == [31106, 195]:
+        #        remove_tokens.append(i)
+        #if remove_tokens != []:
+        #    for i in range(len(remove_tokens)):
+        #        prompt_tokens.pop(remove_tokens[i]-i)
         #print(prompt_tokens)
         text: bytes = b""
         returned_tokens: int = 0
@@ -1488,10 +1504,10 @@ class Llama:
             stop if isinstance(stop, list) else [stop] if isinstance(stop, str) else []
         )
         chat_history = "".join(
-            ("<reserved_102> " + message["content"] if message["role"] == "user" else "<reserved_103> " + message["content"]+ "</s>")
+            ("\",195,\"" + message["content"] if message["role"] == "user" else "\",196,\"" + message["content"]+ "\",2,\"")
             for message in messages
         )
-        PROMPT = chat_history + "<reserved_103> "
+        PROMPT = "[" + chat_history[2:] + "\",196]"
         PROMPT_STOP = ["<reserved_103> ", "<reserved_102> "]
         completion_or_chunks = self(
             prompt=PROMPT,
