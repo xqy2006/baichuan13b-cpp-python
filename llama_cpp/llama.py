@@ -805,7 +805,7 @@ class Llama:
 
     def _create_completion(
         self,
-        prompt: str,
+        prompt: list,
         suffix: Optional[str] = None,
         max_tokens: int = 16,
         temperature: float = 0.8,
@@ -833,8 +833,7 @@ class Llama:
         created: int = int(time.time())
         completion_tokens: List[int] = []
         # Add blank space to start of prompt to match OG llama tokenizer
-        #print(eval(prompt))
-        prompt_list = eval(prompt)
+        prompt_list = prompt
         result = []
         import sentencepiece as spm
         sp_model = spm.SentencePieceProcessor()
@@ -1268,7 +1267,7 @@ class Llama:
 
     def create_completion(
         self,
-        prompt: str,
+        prompt: list,
         suffix: Optional[str] = None,
         max_tokens: int = 128,
         temperature: float = 0.8,
@@ -1343,7 +1342,7 @@ class Llama:
 
     def __call__(
         self,
-        prompt: str,
+        prompt: list,
         suffix: Optional[str] = None,
         max_tokens: int = 128,
         temperature: float = 0.8,
@@ -1509,11 +1508,21 @@ class Llama:
         stop = (
             stop if isinstance(stop, list) else [stop] if isinstance(stop, str) else []
         )
-        chat_history = "".join(
-            ("\",195,\"" + message["content"] if message["role"] == "user" else "\",196,\"" + message["content"]+ "\",2,\"")
-            for message in messages
-        )
-        PROMPT = "[" + chat_history[2:] + "\",196]"
+        #chat_history = "".join(
+        #    ("\",195,\"" + message["content"] if message["role"] == "user" else "\",196,\"" + message["content"]+ "\",2,\"")
+        #    for message in messages
+        #)
+        PROMPT = []
+        for message in messages:
+            if message["role"] == "user":
+                PROMPT.append(195)
+                PROMPT.append(message["content"])
+            else:
+                PROMPT.append(196)
+                PROMPT.append(message["content"])
+        PROMPT.append(196)
+        #PROMPT = "[" + chat_history[2:] + "\",196]"
+        #PROMPT = PROMPT.replace("\n","\\n")
         PROMPT_STOP = ["<reserved_103> ", "<reserved_102> "]
         completion_or_chunks = self(
             prompt=PROMPT,
