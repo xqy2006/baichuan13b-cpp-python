@@ -845,8 +845,8 @@ class Llama:
             elif item == 196:
                 result+=[196]
             elif item == 2:
-                pass
-                #result+=[2]
+                #pass
+                result+=[2]
             elif item == "":
                 pass
             else:
@@ -1520,6 +1520,7 @@ class Llama:
             else:
                 PROMPT.append(196)
                 PROMPT.append(message["content"])
+                PROMPT.append(2)
         PROMPT.append(196)
         #PROMPT = "[" + chat_history[2:] + "\",196]"
         #PROMPT = PROMPT.replace("\n","\\n")
